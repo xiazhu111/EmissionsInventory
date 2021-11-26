@@ -22,3 +22,10 @@ summary(results) # from the summary, we can see that the bagger is the constrain
 #The speed of the overall manufacturing line is limited to the speed of putting the rolls into bags
 summary(results$total) #prints horizontally
 summary(results['total']) #prints vertically 
+
+#the triangular distribution
+install.packages("EnvStats")
+library(EnvStats)
+rtri(50, 0, 1, 1/2) #'50' is the number of samples drawn from the distribution
+d <- rnorm(1,2,3)
+d
