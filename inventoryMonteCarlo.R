@@ -42,16 +42,33 @@ inventory <- function(n) {
   wash_cycles8 <- runif(n,192.72, 245.28) #source 8: laundry washing 
   loadperwash8 <- runif(n,3,4) #source 8: laundry washing 
   laundry_sheddingrate8 <- runif(n,124,308) #source 8: laundry washing 
-  percent_synthetic8 <- runif(n, 29.92, 38.08) #source 8: laundry washing 
+  percent_synthetic8 <- runif(n, 29.92, 38.08)/100 #source 8: laundry washing 
   WWTP_efficiency8 <- rnorm(n,0.989025,0.007325924) #source 8: laundry washing 
   
-  loadperdry <- rnorm(n,0.438,0.017)
-  shedding_dryer <- rnorm(n,18,8)
-  tire_shedding <- rtri(n,0.05,0.25,0.1)
-  fishinggear_loss <- runif(n,0.01,0.1)
-  litres_paint <- runif(n,2,3) 
-  litres_paint2 <- runif(1,2,2.5)
-  mass_paint_perarea <- runif(1,1,1.3) 
+  households9 <- runif(n,1108313.58,1249800.42) #source 9: dryer vent emissions
+  ownership_rate9 <- runif(n, 75.68, 96.32) #source 9: dryer vent emissions
+  dry_cycles9 <- runif(n,192.72,245.28) #source 9: dryer vent emissions
+  loadperdry9 <- rnorm(n,0.438,0.017) #source 9: dryer vent emissions
+  shedding_dryer9 <- rnorm(n,18,8) #source 9: dryer vent emissions
+  percent_synthetic9 <- runif(n,29.92,38.08)/100 #source 9: dryer vent emissions
+  
+  households10 <- runif(n,1108313.58,1249800.42) #source 10: vehicle tire dust
+  vehicles_perhousehold10 <- runif(n,1.078,1.122) #source 10: vehicle tire dust
+  km_per_year10 <- runif(n,14080,17920) #source 10: vehicle tire dust
+  tire_shedding10 <- rtri(n,0.05,0.25,0.1) #source 10: vehicle tire dust
+  
+  fishers11 <- runif(n, 103087.92,116248.08) #source 11: derelict fishing gear
+  mass_fishinggear11 <- runif(n, 1349.815992,1522.132927) #source 11: derelict fishing gear
+  fishgear_lossrate11 <- runif(n,0.01,0.1) #source 11: derelict fishing gear
+  
+  aquaticvessels12 <- runif(n,6730.4,7589.6) #source 12: paint shedding from aquatic vessels
+  ships12 <- runif(n, 150.4,169.6) #source 12: paint shedding from aquatic vessels
+  litres_per_vessel12 <- runif(n,2,2.5) #source 12: paint shedding from aquatic vessels
+  kg_per_litre12 <- runif(n,1,1.3) #source 12: paint shedding from aquatic vessels
+  percentsolids12 <- runif(n,44,56)/100 #source 12: paint shedding from aquatic vessels
+  sheddingrate12 <- runif(n, 0.88,1.12)/100 #source 12: paint shedding from aquatic vessels
+
+  
   #do the calculations
  # sum <- (housesTO_1*exterior_surface_area*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000) #source 1: house paint shedding, updated
    # + (littering_rate1 + littering_rate2) #source 2: littering, illegal dumping, inadequately managed waste, and garbage day overflow
@@ -61,10 +78,11 @@ inventory <- function(n) {
    # + (pellet_productionTO6*pellet_loss6*1000) #source 6: pellet spills from plastic industry
    # + (airports7*aircraft_movements7*airplane_shedding7/10^9) #source 7: shedding of tire dust from airplanes
    # + (households8*ownership_rate8/100*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9) #source 8: shedding of fibers from laundry
-   # + (1179057*0.86*289*loadperdry*shedding_dryer*0.34/10^9) #source 9: fibers from dryers
-   # + (1179057*1.3*16000*tire_shedding)/10^9 #source 10: wearing of vehicle tires
-   # + (109668*1435.974459546*fishinggear_loss/10^6) #source 11: derelict fishing gear
-   # + (7160)*(litres_paint*0.119826404)*(0.01)/1000 #source 12: shedding of paint from aquatic vessels
+   # + (households9*ownership_rate9/100*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/100/10^9) #source 9: fibers from dryers
+   # + (households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9 #source 10: wearing of vehicle tires
+   # + (fishers11*mass_fishinggear11*fishgear_lossrate11/10^6) #source 11: derelict fishing gear
+   # + (aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000 #source 12: shedding of paint from aquatic vessels
+   # + (ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000 #source 12: shedding of paint from recoating of ships
   sum <- (housesTO_1*exterior_surface_area*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
         +(littering_rate1 + littering_rate2)
         +(roadpaint3*percent_solids3*degradation_rate3)
@@ -72,8 +90,12 @@ inventory <- function(n) {
         +(plastic_construction5*proportion_foam5*foam_sheddingrate5)
         +(pellet_productionTO6*pellet_loss6*1000)
         +(airports7*aircraft_movements7*airplane_shedding7/10^9)
-        +(households8*ownership_rate8/100*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)
-        +(1179057*0.86*289*loadperdry*shedding_dryer*0.34/10^9)+(1179057*1.3*16000*tire_shedding)/10^9+(109668*1435.974459546*fishinggear_loss/10^6)+(7160)*(litres_paint*0.119826404)*(0.01)/1000+(160*litres_paint2*mass_paint_perarea*0.5*0.01)/1000
+        +(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8/100*(1-WWTP_efficiency8)/10^9)
+        +(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/100/10^9)
+        +(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9
+        +(fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)
+        +(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000
+        +(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000
   #return result
   return(list("sum"=sum))
 }
