@@ -83,7 +83,7 @@ inventory <- function(n) {
    # + (fishers11*mass_fishinggear11*fishgear_lossrate11/10^6) #source 11: derelict fishing gear
    # + (aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000 #source 12: shedding of paint from aquatic vessels
    # + (ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000 #source 12: shedding of paint from recoating of ships
-  sum <- (housesTO_1*exterior_surface_area*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
+  sum <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
         +(littering_rate1 + littering_rate2)
         +(roadpaint3*percent_solids3*degradation_rate3)
         +(fields4*mass_infill4*turf_shedding4)
@@ -179,7 +179,7 @@ source1 <- function(n) {
   percent_solids1 <- runif(n,17.6,22.4)/100 #source 1: house paint shedding
   house_shedding_rate1 <- runif(n,0.01,0.04) #confirmed #source 1: house paint shedding
   #do the calculations
-  sum <- (housesTO_1*exterior_surface_area*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
+  sum <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
   #return result
   return(list("sum"=sum))
 }
@@ -188,7 +188,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source1, nrep = 1000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of house paint emissions",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of paint emissions from the exteriors of houses",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -268,7 +268,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source4, nrep = 1000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of artificial turf emissions",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of emissions from artificial turf",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -288,7 +288,7 @@ source5 <- function(n) {
 }
 param_list = list("n" = 1) #number of arguments matches that of func
 set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
-MC_result <- MonteCarlo(func = source4, nrep = 1000, param_list = param_list)
+MC_result <- MonteCarlo(func = source5, nrep = 1000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
 p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of emissions from construction",x="emissions (T)",y="Frequency")
@@ -297,13 +297,168 @@ summary(df$sum)
 norm.interval(df$sum)
 #
 #
-##source 6: pellet loss or industrial source grouping
-##source 7: airplane tire dust
-##source 8: laundry washing
-##source 9: dryer vent emissions
-##source 10: vehicle tire dust
-##source 11: derelict fishing gear
+##source 6: pellet loss or industrial source grouping###6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
+source6 <- function(n) {
+  #sample from the pdfs
+  pellet_productionTO6 <- runif(n,146.618472,186.605328) #source 6: pellet loss
+  pellet_loss6 <- runif(n,0.0001,0.0004) #source 6: pellet loss
+  #do the calculations
+  sum <- (pellet_productionTO6*pellet_loss6*1000)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source6, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of pellet losses",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 7: airplane tire dust###77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+source7 <- function(n) {
+  #sample from the pdfs
+  airports7 <- 1 #source 7: airplane tire dust
+  aircraft_movements7 <- runif(n,132528.34,137937.66) #source 7: airplane tire dust
+  airplane_shedding7 <- runif(n,244.64,311.36) #source 7: airplane tire dust
+  #do the calculations
+  sum <- (airports7*aircraft_movements7*airplane_shedding7/10^9)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source7, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of tire dust emissions from airplanes",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 8: laundry washing###888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+source8 <- function(n) {
+  #sample from the pdfs
+  households8 <- runif(n,1108313.58,1249800.42) #source 8: laundry washing 
+  ownership_rate8 <- runif(n, 75.68, 96.32)/100 #source 8: laundry washing 
+  wash_cycles8 <- runif(n,192.72, 245.28) #source 8: laundry washing 
+  loadperwash8 <- runif(n,3,4) #source 8: laundry washing 
+  laundry_sheddingrate8 <- runif(n,124,308) #source 8: laundry washing 
+  percent_synthetic8 <- runif(n, 29.92, 38.08)/100 #source 8: laundry washing 
+  WWTP_efficiency8 <- rnorm(n,0.989025,0.007325924) #source 8: laundry washing
+  #do the calculations
+  sum <- (households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)
+    #return result
+    return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source8, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of fiber emissions from laundry washing",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 9: dryer vent emissions###99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+source9 <- function(n) {
+  #sample from the pdfs
+  households9 <- runif(n,1108313.58,1249800.42) #source 9: dryer vent emissions
+  ownership_rate9 <- runif(n, 75.68, 96.32)/100 #source 9: dryer vent emissions
+  dry_cycles9 <- runif(n,192.72,245.28) #source 9: dryer vent emissions
+  loadperdry9 <- rnorm(n,0.438,0.017) #source 9: dryer vent emissions
+  shedding_dryer9 <- rnorm(n,18,8) #source 9: dryer vent emissions
+  percent_synthetic9 <- runif(n,29.92,38.08)/100 #source 9: dryer vent emissions
+  #do the calculations
+  sum <- (households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)
+    #return result
+    return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source9, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of fiber emissions from dryer vents",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 10: vehicle tire dust###10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10
+source10 <- function(n) {
+  #sample from the pdfs
+  households10 <- runif(n,1108313.58,1249800.42) #source 10: vehicle tire dust
+  vehicles_perhousehold10 <- runif(n,1.078,1.122) #source 10: vehicle tire dust
+  km_per_year10 <- runif(n,14080,17920) #source 10: vehicle tire dust
+  tire_shedding10 <- rtri(n,0.05,0.25,0.1) #source 10: vehicle tire dust
+  #do the calculations
+  sum <- (households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9
+    #return result
+    return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source10, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of tire dust emissions from vehicles",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 11: derelict fishing gear or aquatic source grouping####11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11
+source11 <- function(n) {
+  #sample from the pdfs
+  fishers11 <- runif(n, 103087.92,116248.08) #source 11: derelict fishing gear
+  mass_fishinggear11 <- runif(n, 1349.815992,1522.132927) #source 11: derelict fishing gear
+  fishgear_lossrate11 <- runif(n,0.01,0.1) #source 11: derelict fishing gear
+  #do the calculations
+  sum <- (fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)
+    #return result
+    return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source11, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of plastic emissions due to derelict fishing gear",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
 ##source 12: paint shedding from aquatic vessels
+source12 <- function(n) {
+  #sample from the pdfs
+  aquaticvessels12 <- runif(n,6730.4,7589.6) #source 12: paint shedding from aquatic vessels
+  ships12 <- runif(n, 150.4,169.6) #source 12: paint shedding from aquatic vessels
+  litres_per_vessel12 <- runif(n,2,2.5) #source 12: paint shedding from aquatic vessels
+  kg_per_litre12 <- runif(n,1,1.3) #source 12: paint shedding from aquatic vessels
+  percentsolids12 <- runif(n,44,56)/100 #source 12: paint shedding from aquatic vessels
+  sheddingrate12 <- runif(n, 0.88,1.12)/100 #source 12: paint shedding from aquatic vessels
+  #do the calculations
+  sum <- (aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
+    #return result
+    return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source12, nrep = 1000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of paint emissions from aquatic vessels",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
 #
 #
 #
@@ -359,30 +514,6 @@ norm.interval(df_terrestrial$sum)
 #
 #
 #
-###########################################2. maritime#############################################
-#defining the aquatic function
-aquatic <- function(n) { #derelict fishing gear
-  #sample from the pdfs
-
-  #do the calculations
-  sum <- 
-  #return result
-  return(list("sum"=sum))
-}
-#add uncertainty pdf parameters to the list
-param_aquatic = list("n" = 1) #number of arguments matches that of func
-#run the actual Monte Carlo simulations
-set.seed(1234) #ALWAYS RUN SET.SEED BEFORE MONTE CARLO
-MC_aquatic <- MonteCarlo(func = aquatic, nrep = 1000, param_list = param_aquatic)
-#don't need to generate table. Go straight to making a dataframe in order to plot results
-#visualize results 
-#with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
-df_aquatic <- MakeFrame(MC_aquatic)
-head(df_aquatic)
-p <- ggplot(df_aquatic, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of aquatic sums",x="emissions (T)",y="Frequency")
-p + geom_vline(xintercept=mean(df_aquatic$sum),color="blue",linetype="dashed",size=1) 
-summary(df_aquatic$sum)
-norm.interval(df_aquatic$sum)
 #
 #
 #
