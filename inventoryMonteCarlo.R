@@ -1,9 +1,12 @@
 install.packages("MonteCarlo")
 install.packages("EnvStats")
+install.packages("readxl")
+install.packages("tidymv")
 library(MonteCarlo)
 library(EnvStats)
 library(dplyr)
 library(ggplot2)
+library(tidymv)
 #defining the inventory function; overall emissions inventory sum
 inventory <- function(n) {
   #sample from the pdfs
@@ -98,7 +101,7 @@ MC_result <- MonteCarlo(func = inventory, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
 #tbl <- tbl_df(df) #a subclass of data.frame; tibbles are the central data structure for the set of packages known as the tidyverse
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of inventory sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 10, color = "pink",size=0.1) + labs(title = "Histogram of inventory sums",x="emissions (T)",y="Frequency")
 #making histogram of sum, and adding vertical means for mean and 95% CI
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 #+ theme(legend.position="top") #change legend position
@@ -176,7 +179,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source1, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of paint emissions from the exteriors of houses",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "darksalmon") + labs(title = "Histogram of paint emissions from the exteriors of houses",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -204,7 +207,7 @@ MC_littering <- MonteCarlo(func = source2_littering, nrep = 10000, param_list = 
 #with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
 df_littering <- MakeFrame(MC_littering)
 head(df_littering)
-p <- ggplot(df_littering, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of neighbourhood littering sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df_littering, aes(x=sum)) + geom_histogram(binwidth = 1, color = "orangered3") + labs(title = "Histogram of neighbourhood littering sums",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df_littering$sum),color="blue",linetype="dashed",size=1) 
 summary(df_littering$sum)
 norm.interval(df_littering$sum)
@@ -232,7 +235,7 @@ MC_source3 <- MonteCarlo(func = source3, nrep = 10000, param_list = param_source
 #with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
 df_source3 <- MakeFrame(MC_source3)
 head(df_source3)
-p <- ggplot(df_source3, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of road paint emissions",x="emissions (T)",y="Frequency")
+p <- ggplot(df_source3, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "darksalmon") + labs(title = "Histogram of road paint emissions",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df_source3$sum),color="blue",linetype="dashed",size=1) 
 summary(df_source3$sum)
 norm.interval(df_source3$sum)
@@ -256,7 +259,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source4, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of emissions from artificial turf",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth=0.5,color="gold") + labs(title = "Histogram of emissions from artificial turf",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -279,7 +282,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source5, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of emissions from construction",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.05, color = "green4") + labs(title = "Histogram of emissions from construction",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -300,7 +303,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source6, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "black") + labs(title = "Histogram of pellet losses",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "green4") + labs(title = "Histogram of pellet losses",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -322,7 +325,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source7, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.0001, color = "black") + labs(title = "Histogram of tire dust emissions from airplanes",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth=0.00001,color="darkorchid4") + labs(title = "Histogram of tire dust emissions from airplanes",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -349,7 +352,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source8, nrep = 50000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "black") + labs(title = "Histogram of fiber emissions from laundry washing",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color="dodgerblue4") + labs(title = "Histogram of fiber emissions from laundry washing",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -374,7 +377,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source9, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "black") + labs(title = "Histogram of fiber emissions from dryer vents",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.005, color = "dodgerblue4") + labs(title = "Histogram of fiber emissions from dryer vents",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -397,7 +400,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source10, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "black") + labs(title = "Histogram of tire dust emissions from vehicles",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "darkorchid4") + labs(title = "Histogram of tire dust emissions from vehicles",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -419,7 +422,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source11, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "black") + labs(title = "Histogram of plastic emissions due to derelict fishing gear",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.03, color = "skyblue") + labs(title = "Histogram of plastic emissions due to derelict fishing gear",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -444,7 +447,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = source12, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.001, color = "black") + labs(title = "Histogram of paint emissions from aquatic vessels",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.0001, color = "darksalmon") + labs(title = "Histogram of paint emissions from aquatic vessels",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -577,7 +580,7 @@ set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MON
 MC_result <- MonteCarlo(func = aquatic, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "black") + labs(title = "Histogram of aquatic emissions",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.03, color = "skyblue") + labs(title = "Histogram of aquatic emissions",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 summary(df$sum)
 norm.interval(df$sum)
@@ -627,7 +630,7 @@ MC_paint <- MonteCarlo(func = paint, nrep = 10000, param_list = param_paint)
 #with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
 df_paint <- MakeFrame(MC_paint)
 head(df_paint)
-p <- ggplot(df_paint, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + labs(title = "Histogram of paint sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df_paint, aes(x=sum)) + geom_histogram(binwidth = 1, color = "darksalmon") + labs(title = "Histogram of paint sums",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df_paint$sum),color="blue",linetype="dashed",size=1) 
 summary(df_paint$sum)
 norm.interval(df_paint$sum)
@@ -665,7 +668,7 @@ MC_tires <- MonteCarlo(func = tires, nrep = 10000, param_list = param_tires)
 #with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
 df_tires <- MakeFrame(MC_tires)
 head(df_tires)
-p <- ggplot(df_tires, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "black") + labs(title = "Histogram of tire dust sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df_tires, aes(x=sum)) + geom_histogram(binwidth = 0.03, color = "darkorchid3") + labs(title = "Histogram of tire dust sums",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df_tires$sum),color="blue",linetype="dashed",size=1) 
 summary(df_tires$sum)
 norm.interval(df_tires$sum)
@@ -708,7 +711,7 @@ MC_clothes <- MonteCarlo(func = clothes, nrep = 10000, param_list = param_clothe
 #with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
 df_clothes <- MakeFrame(MC_clothes)
 head(df_clothes)
-p <- ggplot(df_clothes, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "black") + labs(title = "Histogram of clothes sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df_clothes, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "dodgerblue4") + labs(title = "Histogram of clothes sums",x="emissions (T)",y="Frequency")
 p + geom_vline(xintercept=mean(df_clothes$sum),color="blue",linetype="dashed",size=1) 
 summary(df_clothes$sum)
 norm.interval(df_clothes$sum)
@@ -968,3 +971,88 @@ p <- ggplot(df_1, aes(x=sum)) + geom_histogram(binwidth = 1, color = "black") + 
 p + geom_vline(xintercept=mean(df_1$sum),color="blue",linetype="dashed",size=1) 
 summary(df_1$sum)
 norm.interval(df_1$sum)
+#
+#
+#
+#
+#I want to re-order; factor() worked! Barplots for emissions inventory summary infographic
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+All <- read_excel("C:/Users/alice/OneDrive - University of Toronto/Alice/Temp/Emissions Inventory/All_sources_barplot.xlsx")
+Micro <- read_excel("C:/Users/alice/OneDrive - University of Toronto/Alice/Temp/Emissions Inventory/Microplastics_barplot.xlsx")
+All$sources <- factor(All$sources,levels=c("exteriorhousepaint","artificialturf","roadmarkings","pelletspills","construction","vehicletiredust","laundrywashing","dryers","aquaticvesselpaint","airplanetiredust","littering","derelictfishinggear"))
+ggplot(All,aes(fill=sources,y=emissions,x=z)) + geom_bar(position='stack',stat='identity') + scale_fill_manual(values=c("red1","yellow","firebrick2","green1","springgreen4","orchid","slateblue1","royalblue2","pink","darkorchid1","orange","skyblue1")) + theme(axis.title.x = element_text(size = 15),axis.title.y = element_text(size=15),axis.text.x = element_text(size=15),axis.text.y=element_text(size=15))
+#
+Micro$sources <- factor(Micro$sources,levels=c("exteriorhousepaint","artificialturf","roadmarkings","pelletspills","construction","vehicletiredust","laundrywashing","dryers","aquaticvesselpaint","airplanetiredust"))
+ggplot(Micro,aes(fill=sources,y=emissions,x=z)) + geom_bar(position='stack',stat='identity') + scale_fill_manual(values=c("red1","yellow","firebrick2","green1","springgreen4","orchid","slateblue1","royalblue2","pink","darkorchid1","orange","skyblue1")) + theme(axis.title.x = element_text(size = 15),axis.title.y = element_text(size=15),axis.text.x = element_text(size=15),axis.text.y=element_text(size=15))
+#"exteriorhousepaint","artificialturf","roadmarkings","pelletspills","construction","vehicletiredust","laundrywashing","dryers","aquaticvesselpaint","airplanetiredust","littering","derelictfishinggear"
+#red, yellow, red, green, green, purple, navy, navy, red, purple, orange, light blue
+#"red1","yellow","firebrick2","green1","springgreen4","orchid","slateblue1","royalblue2","pink","darkorchid1","orange","skyblue1"
+#
+#
+#
+#GAM of littering rate against population density, education, income, unemployment rate, Tweet density, litter receptable density
+#see which covariates are significant predictors of plastic littering rate
+#And then, is there another city that has littering rate data? How well does our model explain that data?  
+#*helpful for other cities: how to get this data if you don’t have litter data
+library(mgcv)
+Litter <- read_excel("C:/Users/alice/OneDrive - University of Toronto/Alice/Temp/Emissions Inventory/Litter_Covariates_Standardized.xlsx")
+head(Litter)
+LitterNoNa <- Litter[complete.cases(Litter),]
+is.na(LitterNoNa$PlasticLitter)
+panel.cor <- function(x,y,digits=2,prefix="",cex.cor,...) #with r values from cor()
+{
+  usr <- par("usr");on.exit(par(usr)) 
+  par(usr=c(0,1,0,1)) 
+  r<-abs(cor(x,y)) 
+  txt<-format(c(r,0.123456789),digits=digits)[1] 
+  txt<-paste0(prefix,txt) 
+  if(missing(cex.cor)) 
+    cex.cor<-0.8/strwidth(txt) 
+  text(0.5,0.5,txt,cex=cex.cor*r) 
+} #A total of 8 covariates including start_year_sampling, without considering inverse distance weighted population
+pairs(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + Receptacle_km2+AtLeastUni, upper.panel=panel.cor,data=LitterNoNa)
+#Try 4 combinations of Tweet_km2 and Receptable_km2, to see which residual combination gives the best AIC
+Tweet.Receptacle.res <- lm(Tweets_km2~Receptacle_km2,data=LitterNoNa)$residual #residuals of whatever receptacle cannot explain in Tweets - use to replace Tweets
+Receptacle.Tweet.res <- lm(Receptacle_km2~Tweets_km2,data=LitterNoNa)$residual #residuals of whatever tweets cannot explain in receptacle - use to replace receptacle
+M.1 <- gam(PlasticLitter ~ Tweets_km2 + Tweet.Receptacle.res, family = tw,data=LitterNoNa) #why is this necessary?
+M.2 <- gam(PlasticLitter ~ Receptacle_km2 + Tweet.Receptacle.res, family = tw,data=LitterNoNa) #this should do better
+M.3 <- gam(PlasticLitter ~ Tweets_km2 + Receptacle.Tweet.res, family = tw,data=LitterNoNa) #this should do better
+M.4 <- gam(PlasticLitter ~ Receptacle_km2 + Receptacle.Tweet.res, family = tw,data=LitterNoNa) #also why is this necessary?
+#whichever combination produces the lowest AIC is the one to use in the overall model
+AIC(M.1)
+AIC(M.2) #AICs are all the same = -5.3783... so just choose one? 
+AIC(M.3) #Tweets_km2 alone AIC = -6.653728. Receptacle_km2 alone AIC = -6.505717 
+AIC(M.4) #Lowest AIC is best, so just include Tweets_km2. Don't include receptacle_km2 in model.
+#if Tweet density is a significant predictor, then that automatically means receptacle density is a good predictor
+set.seed(1234) #choose family of distributions based on histogram of littering rates
+M.all_Litter <- gam(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + AtLeastUni, family=tw, data=LitterNoNa)
+#M.all_Litter <- gam(PlasticLitter ~ s(UnemployRt) + s(Pop_km2) + s(HighSchl) + s(Income) + s(Tweets_km2) + s(AtLeastUni), family=tw, data=LitterNoNa)
+M.all_Litter 
+summary(M.all_Litter) 
+plot(M.all_Litter, residuals=TRUE)
+gam.check(M.all_Litter, ncol=1, nrow=1)
+plot(M.all_Litter) #only works when there are smooth terms in model, i.e. s(covariate)
+#null model
+M.null_Litter <- gam(PlasticLitter~1,family=tw,data=LitterNoNa)
+M.null_Litter
+summary(M.null_Litter)
+#AIC scores
+AIC(M.all_Litter)
+AIC(M.null_Litter)
+#comparing AIC scores of all possible permutations of the covariates in the overall model; lowest AIC scores listed first
+#force include the two confounding variables and the measure of sampling effort in the best model using subset
+options(na.action = "na.fail")
+#M.all_ROVdredge <- dredge(M.all_ROV,subset = ~ net_mesh,delta<4) #force include one variable
+library(MuMIn)
+M.all_Litterdredge <- dredge(M.all_Litter)
+M.all_Litterdredge
+M.best <- gam(PlasticLitter~Pop_km2,family=tw,data=LitterNoNa)
+#comparing original data to predictions
+library(ggplot2)
+LitterNoNa$Litter_predict <- predict(M.all_Litter,newdata=LitterNoNa,type="response")# %>% as_tibble() %>% bind_cols(LitterNoNa)
+LitterNoNa$Litter_predict
+ggplot(LitterNoNa, aes(x=PlasticLitter)) + geom_histogram(color="black",fill="white")
+ggplot(LitterNoNa, aes(x=Litter_predict)) + geom_histogram(color="black",fill="white")
