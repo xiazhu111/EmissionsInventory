@@ -12,6 +12,7 @@ inventory <- function(n) {
   #sample from the pdfs
   housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
   exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
   mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
   kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
   percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
@@ -86,7 +87,7 @@ inventory <- function(n) {
    # + (fishers11*mass_fishinggear11*fishgear_lossrate11/10^6) #source 11: derelict fishing gear
    # + (aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000 #source 12: shedding of paint from aquatic vessels
    # + (ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000 #source 12: shedding of paint from recoating of ships
-  sum <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(littering_rate1 + littering_rate2)+(roadpaint3*percent_solids3*degradation_rate3)+(fields4*mass_infill4*turf_shedding4)+(plastic_construction5*proportion_foam5*foam_sheddingrate5)+(pellet_productionTO6*pellet_loss6*1000)+(airports7*aircraft_movements7*airplane_shedding7/10^9)+(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)+(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)+(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9+(fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)+(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
+  sum <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(littering_rate1 + littering_rate2)+(roadpaint3*percent_solids3*degradation_rate3)+(fields4*mass_infill4*turf_shedding4)+(plastic_construction5*proportion_foam5*foam_sheddingrate5)+(pellet_productionTO6*pellet_loss6*1000)+(airports7*aircraft_movements7*airplane_shedding7/10^9)+(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)+(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)+(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9+(fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)+(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
   #return result
   return(list("sum"=sum))
 }
@@ -101,7 +102,7 @@ MC_result <- MonteCarlo(func = inventory, nrep = 10000, param_list = param_list)
 df <- MakeFrame(MC_result)
 head(df)
 #tbl <- tbl_df(df) #a subclass of data.frame; tibbles are the central data structure for the set of packages known as the tidyverse
-p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 10, color = "pink",size=0.1) + labs(title = "Histogram of inventory sums",x="emissions (T)",y="Frequency")
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 5, color = "pink",size=0.1) + labs(title = "Histogram of inventory sums",x="emissions (T)",y="Frequency")
 #making histogram of sum, and adding vertical means for mean and 95% CI
 p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
 #+ theme(legend.position="top") #change legend position
@@ -165,12 +166,13 @@ source1 <- function(n) {
   #sample from the pdfs
   housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
   exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
   mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
   kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
   percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
   house_shedding_rate1 <- runif(n,0.01,0.04) #confirmed #source 1: house paint shedding
   #do the calculations
-  sum <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
+  sum <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
   #return result
   return(list("sum"=sum))
 }
@@ -480,6 +482,7 @@ terrestrial <- function(n) {
   #terrestrial function -> paint + tire dust + clothes + recreational + industrial + MMW 
   housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
   exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
   mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
   kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
   percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
@@ -530,7 +533,7 @@ terrestrial <- function(n) {
   #sample from the pdfs
   
   #do the calculations
-  sum_terrestrial <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(littering_rate1 + littering_rate2)+(roadpaint3*percent_solids3*degradation_rate3)+(fields4*mass_infill4*turf_shedding4)+(plastic_construction5*proportion_foam5*foam_sheddingrate5)+(pellet_productionTO6*pellet_loss6*1000)+(airports7*aircraft_movements7*airplane_shedding7/10^9)+(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)+(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)+(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9
+  sum_terrestrial <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(littering_rate1 + littering_rate2)+(roadpaint3*percent_solids3*degradation_rate3)+(fields4*mass_infill4*turf_shedding4)+(plastic_construction5*proportion_foam5*foam_sheddingrate5)+(pellet_productionTO6*pellet_loss6*1000)+(airports7*aircraft_movements7*airplane_shedding7/10^9)+(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)+(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)+(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9
   #return result
   return(list("sum"=sum_terrestrial))
 }
@@ -600,6 +603,7 @@ paint <- function(n) { #road markings + building paint + aquatic vessel paint
   #sample from the pdfs
   housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
   exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
   mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
   kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
   percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
@@ -616,7 +620,7 @@ paint <- function(n) { #road markings + building paint + aquatic vessel paint
   percentsolids12 <- runif(n,44,56)/100 #source 12: paint shedding from aquatic vessels
   sheddingrate12 <- runif(n, 0.88,1.12)/100 #source 12: paint shedding from aquatic vessels
   #do the calculations
-  sum <- (housesTO_1*exterior_surface_area1*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(roadpaint3*percent_solids3*degradation_rate3)+(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
+  sum <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(roadpaint3*percent_solids3*degradation_rate3)+(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
   #return result
   return(list("sum"=sum))
 }
@@ -755,7 +759,7 @@ norm.interval(df_clothes$sum)
 #
 #
 #TROUBLESHOOTING TROUBLESHOOTING TROUBLESHOOTING - trying to make histogram SMOOTHER; FIXED LITTERING PDF#############################################
-#troubleshooting part 2: add sources one at a time to paint + tire dust function
+#troubleshooting part 2: add sources one at a time to paint + tire dust function; outdated - did not add proportion painted parameter
 #function 1: paint + tire dust
 paint_tiredust <- function(n) {
   #sample from the pdfs
@@ -1050,6 +1054,9 @@ library(MuMIn)
 M.all_Litterdredge <- dredge(M.all_Litter)
 M.all_Litterdredge
 M.best <- gam(PlasticLitter~Pop_km2,family=tw,data=LitterNoNa)
+summary(M.best)
+AIC(M.best)
+median(LitterNoNa$Pop_km2)
 #comparing original data to predictions
 library(ggplot2)
 LitterNoNa$Litter_predict <- predict(M.all_Litter,newdata=LitterNoNa,type="response")# %>% as_tibble() %>% bind_cols(LitterNoNa)
