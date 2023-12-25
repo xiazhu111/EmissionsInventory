@@ -1,0 +1,507 @@
+library(MonteCarlo)
+library(EnvStats)
+library(dplyr)
+library(ggplot2)
+library(tidymv)
+#defining the inventory function; overall emissions inventory sum
+inventory <- function(n) {
+  #sample from the pdfs
+  housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
+  exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
+  mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
+  kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
+  percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
+  house_shedding_rate1 <- runif(n,0.01,0.04) #confirmed #source 1: house paint shedding
+  
+  #source 2 MMW or littering: considering uncertainty from "litterable area" as well as littering timescale
+  littering_rate1 <- runif(n,0.391438402177165,0.983602320576728)+runif(n,3.94655314204831,13.6422558847085)+runif(n,3.22745344538179,37.5565601021775)+runif(n,5.63778203324361,16.9081814240018)+runif(n,3.94694692611396,17.2594602897542)+runif(n,3.41760562393187,10.1794553811305)+runif(n,2.4882593515349,7.6158459166319)+runif(n,1.82799813120172,4.31025310236055)+runif(n,1.27903356356134,3.12534044988941)+runif(n,9.72955657205548,41.5018912339657)+runif(n,2.56475741790535,7.36889228061836)+runif(n,14.4560868079744,71.5038296980515)+runif(n,2.75594543011381,10.7029464154899)+runif(n,4.3160876458958,12.8098240743688)+runif(n,4.50047268166171,14.8135453900702)+runif(n,1.04995958405722,2.56233592893723)+runif(n,5.50366376082537,15.4600287445741)+runif(n,6.79237301432807,18.0815849309858)+runif(n,1.48871439755562,10.9460940344972)+runif(n,5.11817721462802,14.21037087283)+runif(n,2.95485915530633,7.31429191917501)+runif(n,10.1736610725576,28.9354438082811)+runif(n,6.05005206871066,22.3075551039628)+runif(n,3.09635391110603,11.305978704994)+runif(n,5.13583104490466,16.3690892194057)+runif(n,5.60025685718506,14.4346277007538)+runif(n,3.37054803767564,16.4835643523029)+runif(n,0.85352412720543,2.35244766824465)+runif(n,1.1830735668227,14.9633706334029)+runif(n,5.89950018795366,17.3480972585549)+runif(n,2.76696134208546,6.79733674532405)+runif(n,31.0483421709326,87.8437334878306)+runif(n,10.1168861607408,30.888188820349)+runif(n,8.6053402940873,29.0095092854447)+runif(n,13.3535149593952,44.2488764234017)+runif(n,7.32305055260027,21.2986935266053)+runif(n,10.9384809008475,30.6285293981027)+runif(n,1.72790454874013,6.3608639076703)+runif(n,0.29593682892258,0.749948011992112)+runif(n,0.0397287436913667,0.357165077664186)+runif(n,25.993051767541,63.2364753456513)+runif(n,3.17814633554849,11.1788252269504)+runif(n,0.0412789434175218,0.104033283107479)+runif(n,1.53135688506845,4.71925790528699)+runif(n,0.00467649805135976,0.0167001743268518)+runif(n,7.33517300414959,20.8169876014024)+runif(n,10.0921877935971,28.3991163791631)+runif(n,0.573225246687335,3.2487162699874)+runif(n,2.98006540016769,8.25268494091298)+runif(n,0.790726238906733,2.44027421744929)+runif(n,6.2059449699211,16.4550159483781)+runif(n,1.22284195418513,4.9451771623867)+runif(n,19.5056207366144,151.490046805987)+runif(n,1.0382421327266,5.64552833375915)+runif(n,4.66554571610607,42.5926036685556)+runif(n,2.4811656546548,6.80256162512416)+runif(n,2.24320482602513,22.8772118251065)+runif(n,2.37512502320795,10.6800248321611)+runif(n,3.7228435410862,17.49640326531)+runif(n,2.7963808390879,10.9791287121239)+runif(n,4.5022839250348,14.8818659086841)+runif(n,6.96428395241635,22.9423103508813)+runif(n,2.22767763036722,16.9865340556003)+runif(n,3.23102527466658,14.4142370984464)+runif(n,10.6138892581208,90.0350801868732)+runif(n,11.9616807010173,37.7513845086908)+runif(n,2.18333761470522,9.35964365463246)+runif(n,5.81416622030032,20.3917426204488)+runif(n,1.14272053412952,5.4131709003908)+runif(n,7.96412234611592,23.9831299531262)+runif(n,0.821764031592406,3.14296035488058)+runif(n,17.0417687547552,63.3587514819735)+runif(n,51.47123996263,293.284893289207)+runif(n,35.0051314196974,135.689596573419)+runif(n,4.27524041044815,17.2423836051229)+runif(n,3.2267402343768,10.3192067283232)+runif(n,7.7634764692108,47.6019641649207)+runif(n,21.4117552458751,386.484971067772)+runif(n,3.796106640093,21.3386264608956)+runif(n,5.24120046741943,31.6541557314454)+runif(n,5.0983950075135,29.1869170663506)+runif(n,6.59970645990459,46.2179391888053)
+  littering_rate2 <- runif(n,37.4938414007433,157.638077393861)+runif(n,1.21582122833157,5.31655827890283)+runif(n,0.379917101812949,1.59126112189875)+runif(n,1.55488291217416,9.91026820676877)+runif(n,3.08583810804767,118.146412052697)+runif(n,9.94596295781867,48.310270170745)+runif(n,10.2696382493446,41.1415058264323)+runif(n,1.83273250716997,5.44162416194681)+runif(n,2.21273872436956,7.25058335722598)+runif(n,4.52396169216355,19.8614170556771)+runif(n,5.34458674203312,46.2332767202556)+runif(n,6.07263439575046,24.5741990853116)+runif(n,9.49878947929143,34.9009840349431)+runif(n,7.45328738226053,22.6236404732207)+runif(n,2.3733376650426,14.0903466378138)+runif(n,8.84158586131609,45.7858610868298)+runif(n,2.07870764525775,9.92385184034394)+runif(n,1.73849260028415,10.6634360882762)+runif(n,0.950959001971771,6.15973106160371)+runif(n,2.68225253259667,11.0888510346556)+runif(n,0.0688264783334576,0.490838929344842)+runif(n,3.61562691700342,12.405626672217)+runif(n,10.3171105159518,33.9461318360796)+runif(n,20.8592151447112,140.719730814419)+runif(n,15.6187615746062,107.76773685327)+runif(n,29.9567992897924,195.758282016638)+runif(n,11.673138669368,33.0573845936565)+runif(n,3.3832796026396,18.7146726647915)+runif(n,2.41807492796867,13.4370212145566)+runif(n,1.49002839095732,9.03042284490711)+runif(n,17.7709956405927,57.5221268552684)+runif(n,7.60376827966723,26.9712058733691)+runif(n,45.3237775142256,136.210386760317)+runif(n,6.54186291752882,42.4503387584748)+runif(n,20.2764798063948,330.525516294046)+runif(n,59.7938866096068,204.998967688084)+runif(n,7.08883391865073,24.0549788662615)+runif(n,13.1818391752305,126.695397524458)+runif(n,7.77557562214391,20.6005694485165)+runif(n,0.732062163188044,3.46119397967027)+runif(n,4.40817589554693,22.9389690146355)+runif(n,2.67275212956516,26.2814732743399)+runif(n,5.02689819555045,67.6784186092757)+runif(n,2.81232766876368,10.489042111765)+runif(n,3.92575432267507,16.6805280586959)+runif(n,2.34146369553851,7.99813612938933)+runif(n,8.31824495528576,30.4562567119485)+runif(n,6.35639429651506,25.6938382733393)+runif(n,5.88936808050191,22.3388340033204)+runif(n,12.1613860464065,41.1638472480516)+runif(n,1.05648314510071,3.02606249268966)+runif(n,7.93246351055982,72.2363633760808)+runif(n,1.3759715762606,5.26138999580338)+runif(n,16.1362465486085,41.3826210314279)+runif(n,14.3962551848451,38.9850323565646)+runif(n,7.17751587258217,19.5855430806206)+runif(n,0.0389942774402566,0.17834981320444)+runif(n,0.791138675164865,15.9233102061626)
+  
+  roadpaint3 <- runif(n,221.7651,250.0755) #source 3: road paint shedding
+  percent_solids3 <- runif(n,73.4800,93.5200)/100 #source 3: road paint shedding
+  degradation_rate3 <- runif(n,44.0000,56.0000)/100 #source 3: road paint shedding
+  
+  fields4 <- runif(n,50.7600,57.2400) #source 4: artificial turf
+  mass_infill4 <- runif(n,154.44,196.56) #source 4: artificial turf
+  turf_shedding4 <- runif(n,0.01,0.04) #source 4: artificial turf
+  
+  plastic_construction5 <- runif(n,90.2373,101.7570) #source 5: construction foam
+  proportion_foam5 <- runif(n,0.058,0.15) #source 5: construction foam
+  foam_sheddingrate5 <- runif(n,2.992,3.808) #source 5: construction foam
+  
+  pellet_productionTO6 <- runif(n,146.6185,186.6053) #source 6: pellet loss
+  pellet_loss6 <- runif(n,0.0001,0.0004) #source 6: pellet loss
+  
+  airports7 <- 1 #source 7: airplane tire dust
+  aircraft_movements7 <- runif(n,132528.34,137937.66) #source 7: airplane tire dust
+  airplane_shedding7 <- runif(n,244.64,311.36) #source 7: airplane tire dust
+  
+  households8 <- runif(n,1108313.58,1249800.42) #source 8: laundry washing 
+  ownership_rate8 <- runif(n, 75.68, 96.32)/100 #source 8: laundry washing 
+  wash_cycles8 <- runif(n,192.72, 245.28) #source 8: laundry washing 
+  loadperwash8 <- runif(n,3,4) #source 8: laundry washing 
+  laundry_sheddingrate8 <- runif(n,124,308) #source 8: laundry washing 
+  percent_synthetic8 <- runif(n, 29.92, 38.08)/100 #source 8: laundry washing 
+  WWTP_efficiency8 <- rnorm(n,0.989025,0.007325924) #source 8: laundry washing 
+  
+  households9 <- runif(n,1108313.58,1249800.42) #source 9: dryer vent emissions
+  ownership_rate9 <- runif(n, 75.68, 96.32)/100 #source 9: dryer vent emissions
+  dry_cycles9 <- runif(n,192.72,245.28) #source 9: dryer vent emissions
+  loadperdry9 <- rnorm(n,0.438,0.017) #source 9: dryer vent emissions
+  shedding_dryer9 <- rnorm(n,18,8) #source 9: dryer vent emissions
+  percent_synthetic9 <- runif(n,29.92,38.08)/100 #source 9: dryer vent emissions
+  
+  households10 <- runif(n,1108313.58,1249800.42) #source 10: vehicle tire dust
+  vehicles_perhousehold10 <- runif(n,1.078,1.122) #source 10: vehicle tire dust
+  km_per_year10 <- runif(n,14080,17920) #source 10: vehicle tire dust
+  tire_shedding10 <- rtri(n,0.05,0.25,0.1) #source 10: vehicle tire dust
+  
+  fishers11 <- runif(n, 103087.92,116248.08) #source 11: derelict fishing gear
+  mass_fishinggear11 <- runif(n,1349.8160,1522.1329) #source 11: derelict fishing gear
+  fishgear_lossrate11 <- runif(n,0.01,0.1) #source 11: derelict fishing gear
+  
+  aquaticvessels12 <- runif(n,6730.4,7589.6) #source 12: paint shedding from aquatic vessels
+  ships12 <- runif(n, 150.4,169.6) #source 12: paint shedding from aquatic vessels
+  litres_per_vessel12 <- runif(n,2,2.5) #source 12: paint shedding from aquatic vessels
+  kg_per_litre12 <- runif(n,1,1.3) #source 12: paint shedding from aquatic vessels
+  percentsolids12 <- runif(n,44,56)/100 #source 12: paint shedding from aquatic vessels
+  sheddingrate12 <- runif(n, 0.88,1.12)/100 #source 12: paint shedding from aquatic vessels
+  
+  sum <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)+(littering_rate1 + littering_rate2)+(roadpaint3*percent_solids3*degradation_rate3)+(fields4*mass_infill4*turf_shedding4)+(plastic_construction5*proportion_foam5*foam_sheddingrate5)+(pellet_productionTO6*pellet_loss6*1000)+(airports7*aircraft_movements7*airplane_shedding7/10^9)+(households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)+(households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)+(households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9+(fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)+(aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
+  #return result
+  return(list("sum"=sum))
+}
+#add uncertainty pdf parameters to the list
+param_list = list("n" = 1) #number of arguments matches that of func
+#run the actual Monte Carlo simulations
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = inventory, nrep = 10000, param_list = param_list)
+#don't need to generate table. Go straight to making a dataframe in order to plot results
+#visualize results 
+#with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
+df <- MakeFrame(MC_result)
+head(df)
+#tbl <- tbl_df(df) #a subclass of data.frame; tibbles are the central data structure for the set of packages known as the tidyverse
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 2, color = "pink",size=5) + labs(title = "Histogram of inventory sums",x="emissions (T)",y="Frequency")
+#making histogram of sum, and adding vertical means for mean and 95% CI
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+#+ theme(legend.position="top") #change legend position
+
+#calculating 95% CIs for the histogram
+norm.interval = function(data, variance = var(data), conf.level = 0.95)
+{
+  z = qnorm((1 - conf.level)/2, lower.tail = FALSE)
+  xbar = mean(data)
+  sdx = sqrt(variance/length(data))
+  c(xbar - z*sdx, xbar + z*sdx)
+}
+norm.interval(df$sum)
+summary(df$sum)
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#Monte Carlo simulations for individual sources
+##source 1: house paint shedding######1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+source1 <- function(n) {
+  #sample from the pdfs
+  housesTO_1 <- runif(n,381071.3000,429718.7000) #source 1: house paint shedding
+  exterior_surface_area1 <- rtri(n,2530,4382,3578) #confirmed #source 1: house paint shedding
+  proportion_painted <- rtri(n,0.25,1,0.5) #NEW!
+  mass_paint_area_1 <- runif(n,0.0088,0.0112) #source 1: house paint shedding
+  kg_gallon_paint1 <- runif(n,2.72155,5.44311) #source 1: house paint shedding
+  percent_solids1 <- runif(n,17.6000,22.4000)/100 #source 1: house paint shedding
+  house_shedding_rate1 <- runif(n,0.01,0.04) #confirmed #source 1: house paint shedding
+  #do the calculations
+  sum <- (housesTO_1*exterior_surface_area1*proportion_painted*mass_paint_area_1*kg_gallon_paint1*percent_solids1*house_shedding_rate1/1000)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source1, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 1, color = "darksalmon") + labs(title = "Histogram of paint emissions from the exteriors of houses",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+#
+##source 2 littering or MMW source grouping###22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+source2_littering <- function(n) #annual plastic litter emissions from TO
+{
+  #source 2 MMW or littering: using roads + sidewalks
+  littering_rate1 <- runif(n,0.391438402177165,0.983602320576728)+runif(n,3.94655314204831,13.6422558847085)+runif(n,3.22745344538179,37.5565601021775)+runif(n,5.63778203324361,16.9081814240018)+runif(n,3.94694692611396,17.2594602897542)+runif(n,3.41760562393187,10.1794553811305)+runif(n,2.4882593515349,7.6158459166319)+runif(n,1.82799813120172,4.31025310236055)+runif(n,1.27903356356134,3.12534044988941)+runif(n,9.72955657205548,41.5018912339657)+runif(n,2.56475741790535,7.36889228061836)+runif(n,14.4560868079744,71.5038296980515)+runif(n,2.75594543011381,10.7029464154899)+runif(n,4.3160876458958,12.8098240743688)+runif(n,4.50047268166171,14.8135453900702)+runif(n,1.04995958405722,2.56233592893723)+runif(n,5.50366376082537,15.4600287445741)+runif(n,6.79237301432807,18.0815849309858)+runif(n,1.48871439755562,10.9460940344972)+runif(n,5.11817721462802,14.21037087283)+runif(n,2.95485915530633,7.31429191917501)+runif(n,10.1736610725576,28.9354438082811)+runif(n,6.05005206871066,22.3075551039628)+runif(n,3.09635391110603,11.305978704994)+runif(n,5.13583104490466,16.3690892194057)+runif(n,5.60025685718506,14.4346277007538)+runif(n,3.37054803767564,16.4835643523029)+runif(n,0.85352412720543,2.35244766824465)+runif(n,1.1830735668227,14.9633706334029)+runif(n,5.89950018795366,17.3480972585549)+runif(n,2.76696134208546,6.79733674532405)+runif(n,31.0483421709326,87.8437334878306)+runif(n,10.1168861607408,30.888188820349)+runif(n,8.6053402940873,29.0095092854447)+runif(n,13.3535149593952,44.2488764234017)+runif(n,7.32305055260027,21.2986935266053)+runif(n,10.9384809008475,30.6285293981027)+runif(n,1.72790454874013,6.3608639076703)+runif(n,0.29593682892258,0.749948011992112)+runif(n,0.0397287436913667,0.357165077664186)+runif(n,25.993051767541,63.2364753456513)+runif(n,3.17814633554849,11.1788252269504)+runif(n,0.0412789434175218,0.104033283107479)+runif(n,1.53135688506845,4.71925790528699)+runif(n,0.00467649805135976,0.0167001743268518)+runif(n,7.33517300414959,20.8169876014024)+runif(n,10.0921877935971,28.3991163791631)+runif(n,0.573225246687335,3.2487162699874)+runif(n,2.98006540016769,8.25268494091298)+runif(n,0.790726238906733,2.44027421744929)+runif(n,6.2059449699211,16.4550159483781)+runif(n,1.22284195418513,4.9451771623867)+runif(n,19.5056207366144,151.490046805987)+runif(n,1.0382421327266,5.64552833375915)+runif(n,4.66554571610607,42.5926036685556)+runif(n,2.4811656546548,6.80256162512416)+runif(n,2.24320482602513,22.8772118251065)+runif(n,2.37512502320795,10.6800248321611)+runif(n,3.7228435410862,17.49640326531)+runif(n,2.7963808390879,10.9791287121239)+runif(n,4.5022839250348,14.8818659086841)+runif(n,6.96428395241635,22.9423103508813)+runif(n,2.22767763036722,16.9865340556003)+runif(n,3.23102527466658,14.4142370984464)+runif(n,10.6138892581208,90.0350801868732)+runif(n,11.9616807010173,37.7513845086908)+runif(n,2.18333761470522,9.35964365463246)+runif(n,5.81416622030032,20.3917426204488)+runif(n,1.14272053412952,5.4131709003908)+runif(n,7.96412234611592,23.9831299531262)+runif(n,0.821764031592406,3.14296035488058)+runif(n,17.0417687547552,63.3587514819735)+runif(n,51.47123996263,293.284893289207)+runif(n,35.0051314196974,135.689596573419)+runif(n,4.27524041044815,17.2423836051229)+runif(n,3.2267402343768,10.3192067283232)+runif(n,7.7634764692108,47.6019641649207)+runif(n,21.4117552458751,386.484971067772)+runif(n,3.796106640093,21.3386264608956)+runif(n,5.24120046741943,31.6541557314454)+runif(n,5.0983950075135,29.1869170663506)+runif(n,6.59970645990459,46.2179391888053)
+  littering_rate2 <- runif(n,37.4938414007433,157.638077393861)+runif(n,1.21582122833157,5.31655827890283)+runif(n,0.379917101812949,1.59126112189875)+runif(n,1.55488291217416,9.91026820676877)+runif(n,3.08583810804767,118.146412052697)+runif(n,9.94596295781867,48.310270170745)+runif(n,10.2696382493446,41.1415058264323)+runif(n,1.83273250716997,5.44162416194681)+runif(n,2.21273872436956,7.25058335722598)+runif(n,4.52396169216355,19.8614170556771)+runif(n,5.34458674203312,46.2332767202556)+runif(n,6.07263439575046,24.5741990853116)+runif(n,9.49878947929143,34.9009840349431)+runif(n,7.45328738226053,22.6236404732207)+runif(n,2.3733376650426,14.0903466378138)+runif(n,8.84158586131609,45.7858610868298)+runif(n,2.07870764525775,9.92385184034394)+runif(n,1.73849260028415,10.6634360882762)+runif(n,0.950959001971771,6.15973106160371)+runif(n,2.68225253259667,11.0888510346556)+runif(n,0.0688264783334576,0.490838929344842)+runif(n,3.61562691700342,12.405626672217)+runif(n,10.3171105159518,33.9461318360796)+runif(n,20.8592151447112,140.719730814419)+runif(n,15.6187615746062,107.76773685327)+runif(n,29.9567992897924,195.758282016638)+runif(n,11.673138669368,33.0573845936565)+runif(n,3.3832796026396,18.7146726647915)+runif(n,2.41807492796867,13.4370212145566)+runif(n,1.49002839095732,9.03042284490711)+runif(n,17.7709956405927,57.5221268552684)+runif(n,7.60376827966723,26.9712058733691)+runif(n,45.3237775142256,136.210386760317)+runif(n,6.54186291752882,42.4503387584748)+runif(n,20.2764798063948,330.525516294046)+runif(n,59.7938866096068,204.998967688084)+runif(n,7.08883391865073,24.0549788662615)+runif(n,13.1818391752305,126.695397524458)+runif(n,7.77557562214391,20.6005694485165)+runif(n,0.732062163188044,3.46119397967027)+runif(n,4.40817589554693,22.9389690146355)+runif(n,2.67275212956516,26.2814732743399)+runif(n,5.02689819555045,67.6784186092757)+runif(n,2.81232766876368,10.489042111765)+runif(n,3.92575432267507,16.6805280586959)+runif(n,2.34146369553851,7.99813612938933)+runif(n,8.31824495528576,30.4562567119485)+runif(n,6.35639429651506,25.6938382733393)+runif(n,5.88936808050191,22.3388340033204)+runif(n,12.1613860464065,41.1638472480516)+runif(n,1.05648314510071,3.02606249268966)+runif(n,7.93246351055982,72.2363633760808)+runif(n,1.3759715762606,5.26138999580338)+runif(n,16.1362465486085,41.3826210314279)+runif(n,14.3962551848451,38.9850323565646)+runif(n,7.17751587258217,19.5855430806206)+runif(n,0.0389942774402566,0.17834981320444)+runif(n,0.791138675164865,15.9233102061626)
+  
+  #do the calculations
+  sum <- littering_rate1 + littering_rate2 #source 2: littering, illegal dumping, inadequately managed waste, and garbage day overflow
+  #return result
+  return(list("sum"=sum))
+}
+param_littering = list("n" = 1) #number of arguments matches that of func
+#run the actual Monte Carlo simulations
+#ALWAYS RUN SET.SEED BEFORE MONTE CARLO
+set.seed(1234)
+MC_littering <- MonteCarlo(func = source2_littering, nrep = 10000, param_list = param_littering)
+#don't need to generate table. Go straight to making a dataframe in order to plot results
+#visualize results 
+#with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
+df_littering <- MakeFrame(MC_littering)
+head(df_littering)
+p <- ggplot(df_littering, aes(x=sum)) + geom_histogram(binwidth = 0.5, color = "orangered3") + labs(title = "Histogram of neighbourhood littering sums",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df_littering$sum),color="blue",linetype="dashed",size=1) 
+summary(df_littering$sum)
+norm.interval(df_littering$sum)
+#
+#
+#
+##source 3: road paint shedding###3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+source3 <- function(n) {
+  #sample from the pdfs
+  roadpaint3 <- runif(n,221.7651,250.0755) #source 3: road paint shedding
+  percent_solids3 <- runif(n,73.4800,93.5200)/100 #source 3: road paint shedding
+  degradation_rate3 <- runif(n,44.0000,56.0000)/100 #source 3: road paint shedding
+  #do the calculations
+  sum <- (roadpaint3*percent_solids3*degradation_rate3)
+  #return result
+  return(list("sum"=sum))
+}
+param_source3 = list("n" = 1) #number of arguments matches that of func
+#run the actual Monte Carlo simulations
+#ALWAYS RUN SET.SEED BEFORE MONTE CARLO
+set.seed(1234)
+MC_source3 <- MonteCarlo(func = source3, nrep = 10000, param_list = param_source3)
+#don't need to generate table. Go straight to making a dataframe in order to plot results
+#visualize results 
+#with code from: http://www.sthda.com/english/wiki/ggplot2-histogram-plot-quick-start-guide-r-software-and-data-visualization
+df_source3 <- MakeFrame(MC_source3)
+head(df_source3)
+p <- ggplot(df_source3, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "darksalmon") + labs(title = "Histogram of road paint emissions",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df_source3$sum),color="blue",linetype="dashed",size=1) 
+summary(df_source3$sum)
+norm.interval(df_source3$sum)
+#
+#  
+#  
+#  
+##source 4: artificial turf or recreational source grouping###44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+source4 <- function(n) {
+  #sample from the pdfs
+  fields4 <- runif(n,50.7600,57.2400) #source 4: artificial turf
+  mass_infill4 <- runif(n,154.44,196.56) #source 4: artificial turf
+  turf_shedding4 <- runif(n,0.01,0.04) #source 4: artificial turf
+  #do the calculations
+  sum <- (fields4*mass_infill4*turf_shedding4)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source4, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth=0.5,color="gold") + labs(title = "Histogram of emissions from artificial turf",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+#
+##source 5: construction foam###55555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
+source5 <- function(n) {
+  #sample from the pdfs
+  plastic_construction5 <- runif(n,90.2373,101.7570) #source 5: construction foam
+  proportion_foam5 <- runif(n,0.058,0.15) #source 5: construction foam
+  foam_sheddingrate5 <- runif(n,2.992,3.808) #source 5: construction foam
+  #do the calculations
+  sum <- (plastic_construction5*proportion_foam5*foam_sheddingrate5)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source5, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.05, color = "green4") + labs(title = "Histogram of emissions from construction",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 6: pellet loss or industrial source grouping###6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
+source6 <- function(n) {
+  #sample from the pdfs
+  pellet_productionTO6 <- runif(n,146.6185,186.6053) #source 6: pellet loss
+  pellet_loss6 <- runif(n,0.0001,0.0004) #source 6: pellet loss
+  #do the calculations
+  sum <- (pellet_productionTO6*pellet_loss6*1000)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source6, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.1, color = "green4") + labs(title = "Histogram of pellet losses",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 7: airplane tire dust###77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+source7 <- function(n) {
+  #sample from the pdfs
+  airports7 <- 1 #source 7: airplane tire dust
+  aircraft_movements7 <- runif(n,132528.34,137937.66) #source 7: airplane tire dust
+  airplane_shedding7 <- runif(n,244.64,311.36) #source 7: airplane tire dust
+  #do the calculations
+  sum <- (airports7*aircraft_movements7*airplane_shedding7/10^9)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source7, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth=0.00001,color="darkorchid4") + labs(title = "Histogram of tire dust emissions from airplanes",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 8: laundry washing###888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+source8 <- function(n) {
+  #sample from the pdfs
+  households8 <- runif(n,1108313.58,1249800.42) #source 8: laundry washing 
+  ownership_rate8 <- runif(n, 75.68, 96.32)/100 #source 8: laundry washing 
+  wash_cycles8 <- runif(n,192.72, 245.28) #source 8: laundry washing 
+  loadperwash8 <- runif(n,3,4) #source 8: laundry washing 
+  laundry_sheddingrate8 <- runif(n,124,308) #source 8: laundry washing 
+  percent_synthetic8 <- runif(n, 29.92, 38.08)/100 #source 8: laundry washing 
+  #WWTP_efficiency8 <- runif(n,0.983,0.999)
+  WWTP_efficiency8 <- rnorm(n,0.989025,0.007325924) #source 8: laundry washing
+  #do the calculations
+  sum <- (households8*ownership_rate8*wash_cycles8*loadperwash8*laundry_sheddingrate8*percent_synthetic8*(1-WWTP_efficiency8)/10^9)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source8, nrep = 50000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color="dodgerblue4") + labs(title = "Histogram of fiber emissions from laundry washing",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 9: dryer vent emissions###99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+source9 <- function(n) {
+  #sample from the pdfs
+  households9 <- runif(n,1108313.58,1249800.42) #source 9: dryer vent emissions
+  ownership_rate9 <- runif(n, 75.68, 96.32)/100 #source 9: dryer vent emissions
+  dry_cycles9 <- runif(n,192.72,245.28) #source 9: dryer vent emissions
+  loadperdry9 <- rnorm(n,0.438,0.017) #source 9: dryer vent emissions
+  shedding_dryer9 <- rnorm(n,18,8) #source 9: dryer vent emissions
+  percent_synthetic9 <- runif(n,29.92,38.08)/100 #source 9: dryer vent emissions
+  #do the calculations
+  sum <- (households9*ownership_rate9*dry_cycles9*loadperdry9*shedding_dryer9*percent_synthetic9/10^9)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source9, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.005, color = "dodgerblue4") + labs(title = "Histogram of fiber emissions from dryer vents",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 10: vehicle tire dust###10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10
+source10 <- function(n) {
+  #sample from the pdfs
+  households10 <- runif(n,1108313.58,1249800.42) #source 10: vehicle tire dust
+  vehicles_perhousehold10 <- runif(n,1.078,1.122) #source 10: vehicle tire dust
+  km_per_year10 <- runif(n,14080,17920) #source 10: vehicle tire dust
+  tire_shedding10 <- rtri(n,0.05,0.25,0.1) #source 10: vehicle tire dust
+  #do the calculations
+  sum <- (households10*vehicles_perhousehold10*km_per_year10*tire_shedding10)/10^9
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source10, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.01, color = "darkorchid4") + labs(title = "Histogram of tire dust emissions from vehicles",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 11: derelict fishing gear####11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11.11
+source11 <- function(n) {
+  #sample from the pdfs
+  fishers11 <- runif(n, 103087.92,116248.08) #source 11: derelict fishing gear
+  mass_fishinggear11 <- runif(n,1349.8160,1522.1329) #source 11: derelict fishing gear
+  fishgear_lossrate11 <- runif(n,0.01,0.1) #source 11: derelict fishing gear
+  #do the calculations
+  sum <- (fishers11*mass_fishinggear11*fishgear_lossrate11/10^6)
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source11, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.03, color = "skyblue") + labs(title = "Histogram of plastic emissions due to derelict fishing gear",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+##source 12: paint shedding from aquatic vessels###12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12.12
+source12 <- function(n) {
+  #sample from the pdfs
+  aquaticvessels12 <- runif(n,6730.4,7589.6) #source 12: paint shedding from aquatic vessels
+  ships12 <- runif(n, 150.4,169.6) #source 12: paint shedding from aquatic vessels
+  litres_per_vessel12 <- runif(n,2,2.5) #source 12: paint shedding from aquatic vessels
+  kg_per_litre12 <- runif(n,1,1.3) #source 12: paint shedding from aquatic vessels
+  percentsolids12 <- runif(n,44,56)/100 #source 12: paint shedding from aquatic vessels
+  sheddingrate12 <- runif(n, 0.88,1.12)/100 #source 12: paint shedding from aquatic vessels
+  #do the calculations
+  sum <- (aquaticvessels12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12)/1000+(ships12*litres_per_vessel12*kg_per_litre12*percentsolids12*sheddingrate12*0.99)/1000
+  #return result
+  return(list("sum"=sum))
+}
+param_list = list("n" = 1) #number of arguments matches that of func
+set.seed(1234) #used value from Steph's code -> MUST RUN THIS BEFORE RUNNING MONTE CARLO SIMULATIONS!
+MC_result <- MonteCarlo(func = source12, nrep = 10000, param_list = param_list)
+df <- MakeFrame(MC_result)
+head(df)
+p <- ggplot(df, aes(x=sum)) + geom_histogram(binwidth = 0.0001, color = "darksalmon") + labs(title = "Histogram of paint emissions from aquatic vessels",x="emissions (T)",y="Frequency")
+p + geom_vline(xintercept=mean(df$sum),color="blue",linetype="dashed",size=1) 
+summary(df$sum)
+norm.interval(df$sum)
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#GAM of littering rate against population density, education, income, unemployment rate, Tweet density, litter receptable density
+#see which covariates are significant predictors of plastic littering rate
+#And then, is there another city that has littering rate data? How well does our model explain that data?  
+#*helpful for other cities: how to get this data if you don’t have litter data
+library(mgcv)
+Litter <- read_excel("C:/Users/alice/OneDrive - University of Toronto/Alice/Temp/Emissions Inventory/Litter_Covariates_Standardized.xlsx")
+head(Litter)
+LitterNoNa <- Litter[complete.cases(Litter),]
+is.na(LitterNoNa$PlasticLitter)
+panel.cor <- function(x,y,digits=2,prefix="",cex.cor,...) #with r values from cor()
+{
+  usr <- par("usr");on.exit(par(usr)) 
+  par(usr=c(0,1,0,1)) 
+  r<-abs(cor(x,y)) 
+  txt<-format(c(r,0.123456789),digits=digits)[1] 
+  txt<-paste0(prefix,txt) 
+  if(missing(cex.cor)) 
+    cex.cor<-0.8/strwidth(txt) 
+  text(0.5,0.5,txt,cex=cex.cor*r) 
+} #A total of 8 covariates including start_year_sampling, without considering inverse distance weighted population
+pairs(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + Receptacle_km2+AtLeastUni, upper.panel=panel.cor,data=LitterNoNa)
+#Try 4 combinations of Tweet_km2 and Receptable_km2, to see which residual combination gives the best AIC
+Tweet.Receptacle.res <- lm(Tweets_km2~Receptacle_km2,data=LitterNoNa)$residual #residuals of whatever receptacle cannot explain in Tweets - use to replace Tweets
+Receptacle.Tweet.res <- lm(Receptacle_km2~Tweets_km2,data=LitterNoNa)$residual #residuals of whatever tweets cannot explain in receptacle - use to replace receptacle
+M.1 <- gam(PlasticLitter ~ Tweets_km2 + Tweet.Receptacle.res, family = tw,data=LitterNoNa) #why is this necessary?
+M.2 <- gam(PlasticLitter ~ Receptacle_km2 + Tweet.Receptacle.res, family = tw,data=LitterNoNa) #this should do better
+M.3 <- gam(PlasticLitter ~ Tweets_km2 + Receptacle.Tweet.res, family = tw,data=LitterNoNa) #this should do better
+M.4 <- gam(PlasticLitter ~ Receptacle_km2 + Receptacle.Tweet.res, family = tw,data=LitterNoNa) #also why is this necessary?
+#whichever combination produces the lowest AIC is the one to use in the overall model
+AIC(M.1)
+AIC(M.2) #AICs are all the same = -5.3783... so just choose one? 
+AIC(M.3) #Tweets_km2 alone AIC = -6.653728. Receptacle_km2 alone AIC = -6.505717 
+AIC(M.4) #Lowest AIC is best, so just include Tweets_km2. Don't include receptacle_km2 in model.
+#if Tweet density is a significant predictor, then that automatically means receptacle density is a good predictor
+set.seed(1234) #choose family of distributions based on histogram of littering rates:
+#tw estimates 'p' parameter when fitting; 1 = Poisson, 2 = Gamma
+#Both distributions can fit nicely to right-skewed data with lots of zeros (zero-inflation)
+#That is why Tweedie family of distributions is useful - it is versatile, adapts to the situation at hand
+#https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/Tweedie.html
+M.all_Litter <- gam(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + AtLeastUni, family=tw, data=LitterNoNa)
+M.all_LitterGamma <- gam(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + AtLeastUni, family=Gamma(link="log"), data=LitterNoNa)
+M.all_LitterGaussian <- gam(PlasticLitter ~ UnemployRt + Pop_km2 + HighSchl + Income + Tweets_km2 + AtLeastUni, family=gaussian, data=LitterNoNa)
+library(MuMIn)
+model.sel(M.all_Litter,M.all_LitterGamma,M.all_LitterGaussian, rank = AIC)
+#M.all_Litter <- gam(PlasticLitter ~ s(UnemployRt) + s(Pop_km2) + s(HighSchl) + s(Income) + s(Tweets_km2) + s(AtLeastUni), family=tw, data=LitterNoNa)
+M.all_Litter 
+summary(M.all_Litter) 
+plot(M.all_Litter, residuals=TRUE)
+gam.check(M.all_Litter, ncol=1, nrow=1)
+plot(M.all_Litter) #only works when there are smooth terms in model, i.e. s(covariate)
+#null model
+M.null_Litter <- gam(PlasticLitter~1,family=tw,data=LitterNoNa)
+M.null_Litter
+summary(M.null_Litter)
+#AIC scores
+AIC(M.all_Litter)
+AIC(M.null_Litter)
+#comparing AIC scores of all possible permutations of the covariates in the overall model; lowest AIC scores listed first
+#force include the two confounding variables and the measure of sampling effort in the best model using subset
+options(na.action = "na.fail")
+#M.all_ROVdredge <- dredge(M.all_ROV,subset = ~ net_mesh,delta<4) #force include one variable
+library(MuMIn)
+M.all_Litterdredge <- dredge(M.all_Litter)
+M.all_Litterdredge
+M.best <- gam(PlasticLitter~Pop_km2,family=tw,data=LitterNoNa)
+summary(M.best)
+AIC(M.best)
+median(LitterNoNa$Pop_km2)
+#comparing original data to predictions
+library(ggplot2)
+LitterNoNa$Litter_predict <- predict(M.all_Litter,newdata=LitterNoNa,type="response")# %>% as_tibble() %>% bind_cols(LitterNoNa)
+LitterNoNa$Litter_predict
+ggplot(LitterNoNa, aes(x=PlasticLitter)) + geom_histogram(color="black",fill="white")
+ggplot(LitterNoNa, aes(x=Litter_predict)) + geom_histogram(color="black",fill="white")
