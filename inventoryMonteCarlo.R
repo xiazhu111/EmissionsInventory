@@ -2,7 +2,7 @@ library(MonteCarlo)
 library(EnvStats)
 library(dplyr)
 library(ggplot2)
-library(tidymv)
+library(tidymv) #superseded by tidygam
 #defining the inventory function; overall emissions inventory sum
 inventory <- function(n) {
   #sample from the pdfs
